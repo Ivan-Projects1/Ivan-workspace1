@@ -25,6 +25,7 @@ export const Header: React.FC = () => {
     uploadFiles,
     setCurrentView,
     createChat,
+    addToast,
   } = useWorkspace();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,9 +59,16 @@ export const Header: React.FC = () => {
   };
 
   const toggleNextTheme = () => {
-    if (theme === 'system') setTheme('light');
-    else if (theme === 'light') setTheme('dark');
-    else setTheme('system');
+    if (theme === 'system') {
+      setTheme('light');
+      addToast('Visual theme set to Light', 'info');
+    } else if (theme === 'light') {
+      setTheme('dark');
+      addToast('Visual theme set to Dark', 'info');
+    } else {
+      setTheme('system');
+      addToast('Visual theme set to System default', 'info');
+    }
   };
 
   return (

@@ -97,28 +97,28 @@ export const Sidebar: React.FC = () => {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 flex flex-col transition-all duration-200 ease-in-out lg:translate-x-0 ${
           isMobileNavOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs">
               IW
             </div>
             <div>
-              <h1 className="text-sm font-bold tracking-tight text-white">
+              <h1 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
                 IVAN WORKSPACE
               </h1>
-              <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-medium">
+              <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-medium">
                 Organize. Work. Learn. Build.
               </p>
             </div>
           </div>
           <button
             onClick={() => setIsMobileNavOpen(false)}
-            className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -130,7 +130,7 @@ export const Sidebar: React.FC = () => {
             const secItems = navItems.filter((i) => i.section === sec);
             return (
               <div key={sec} className="space-y-0.5">
-                <div className="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+                <div className="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
                   {sec}
                 </div>
                 {secItems.map((item) => {
@@ -143,16 +143,16 @@ export const Sidebar: React.FC = () => {
                       onClick={() => handleNavClick(item)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors group ${
                         isActive
-                          ? 'bg-emerald-600/15 text-emerald-400 font-semibold border-l-2 border-emerald-500 rounded-l-none'
-                          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                          ? 'bg-emerald-50 dark:bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 font-semibold border-l-2 border-emerald-600 dark:border-emerald-500 rounded-l-none'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
                         <Icon
                           className={`w-4 h-4 shrink-0 transition-colors ${
                             isActive
-                              ? 'text-emerald-400'
-                              : 'text-slate-400 group-hover:text-slate-200'
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-200'
                           }`}
                         />
                         <span>{item.label}</span>
@@ -161,8 +161,8 @@ export const Sidebar: React.FC = () => {
                         <span
                           className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                             isActive
-                              ? 'bg-emerald-500/20 text-emerald-300'
-                              : 'bg-slate-800 text-slate-400 group-hover:text-slate-300'
+                              ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300'
                           }`}
                         >
                           {item.count}
@@ -177,26 +177,26 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* User Identity & Local Storage Card */}
-        <div className="p-3 border-t border-slate-800 bg-slate-950/40">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-            <span className="flex items-center gap-1.5 font-medium text-slate-300 text-[11px]">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
+            <span className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300 text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               IndexedDB Storage
             </span>
             <span className="text-[10px] text-slate-400">{totalFiles} items</span>
           </div>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div
               className="bg-emerald-600 h-full rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, Math.max(8, totalFiles * 4))}%` }}
             />
           </div>
-          <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center font-bold text-[10px]">
+              <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-[10px]">
                 I
               </div>
-              <span className="text-slate-300 font-medium truncate">Ivan Workspace</span>
+              <span className="text-slate-800 dark:text-slate-300 font-medium truncate">Ivan Workspace</span>
             </div>
           </div>
         </div>
