@@ -1,0 +1,6 @@
+{
+  "name": "IVAN WORKSPACE",
+  "description": "Organize. Work. Learn. Build. Professional AI-powered personal digital headquarters for university, teaching, research, software, business, and documents.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
