@@ -30,15 +30,15 @@ export async function checkAIHealth(): Promise<HealthCheckResult> {
     return {
       hasOpenAI: false,
       hasGemini: false,
-      defaultProvider: 'openai',
+      defaultProvider: 'gemini',
       availableOpenAIModels: [
         { id: 'gpt-4o', name: 'GPT-4o (Omni Flagship)' },
         { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Fast & Smart)' },
         { id: 'o3-mini', name: 'o3-mini (Reasoning)' },
       ],
       availableGeminiModels: [
-        { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash' },
-        { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro' },
+        { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Latest, Fast & Built-in - Recommended)' },
+        { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Deep STEM Reasoning)' },
       ],
     };
   }
@@ -85,6 +85,9 @@ export async function sendStreamingChat(options: ChatRequestOptions): Promise<st
   if (settings.openAIApiKey) {
     headers['x-openai-api-key'] = settings.openAIApiKey;
   }
+  if (settings.geminiApiKey) {
+    headers['x-gemini-api-key'] = settings.geminiApiKey;
+  }
 
   const response = await fetch('/api/chat', {
     method: 'POST',
@@ -99,6 +102,7 @@ export async function sendStreamingChat(options: ChatRequestOptions): Promise<st
       temperature: settings.temperature,
       stream: true,
       userApiKey: settings.openAIApiKey || '',
+      userGeminiApiKey: settings.geminiApiKey || '',
     }),
   });
 

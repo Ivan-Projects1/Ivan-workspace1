@@ -9,6 +9,13 @@
     <meta property="og:description" content="Organize. Work. Learn. Build. Professional AI-powered personal digital headquarters for university, teaching, research, software, business, and documents." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#059669" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="IvanWork" />
     <script>
       (function() {
         try {
@@ -16,9 +23,11 @@
           var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           if (isDark) {
             document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
             document.documentElement.style.colorScheme = 'dark';
           } else {
             document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
             document.documentElement.style.colorScheme = 'light';
           }
         } catch (e) {}

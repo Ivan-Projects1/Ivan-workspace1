@@ -1,0 +1,38 @@
+{
+  "id": "/",
+  "name": "IVAN WORKSPACE",
+  "short_name": "IvanWork",
+  "description": "Organize. Work. Learn. Build. Professional AI-powered personal digital headquarters for university, teaching, research, software, business, and documents.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "education",
+    "business",
+    "utilities"
+  ]
+}

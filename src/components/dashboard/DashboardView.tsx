@@ -130,16 +130,16 @@ export const DashboardView: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Welcome Banner */}
-      <div className="rounded-xl bg-slate-900 border border-slate-800 p-6 sm:p-8 text-white shadow-xs">
+      <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 text-slate-900 dark:text-white shadow-xs">
         <div className="max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-medium border border-emerald-200 dark:border-emerald-500/20">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>AI-Powered Personal Digital Headquarters</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             Welcome back to Ivan Workspace
           </h1>
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
             Your centralized digital workspace for university coursework, teaching resources, research literature, administration, business operations, and local document management.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -155,9 +155,9 @@ export const DashboardView: React.FC = () => {
             </button>
             <button
               onClick={() => setCurrentView('files')}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-medium text-xs sm:text-sm rounded-lg border border-slate-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-medium text-xs sm:text-sm rounded-lg border border-slate-200 dark:border-slate-700 transition-colors flex items-center gap-2"
             >
-              <FileText className="w-4 h-4 text-slate-400" />
+              <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span>Manage Documents</span>
             </button>
           </div>

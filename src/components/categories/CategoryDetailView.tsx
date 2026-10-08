@@ -104,23 +104,23 @@ export const CategoryDetailView: React.FC<CategoryDetailViewProps> = ({ category
   return (
     <div className="space-y-6">
       {/* Banner */}
-      <div className="p-6 sm:p-8 bg-slate-900 border-b border-slate-800 text-white">
+      <div className="p-6 sm:p-8 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
                 <Icon className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{current.title}</h1>
-                <p className="text-xs text-slate-300 mt-0.5">{current.desc}</p>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{current.title}</h1>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{current.desc}</p>
               </div>
             </div>
           </div>
 
           {/* Domain AI Prompt Shortcuts */}
           <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{current.aiMode.toUpperCase()} AI Quick Actions</span>
             </div>
@@ -129,9 +129,9 @@ export const CategoryDetailView: React.FC<CategoryDetailViewProps> = ({ category
                 <button
                   key={idx}
                   onClick={() => handleLaunchPrompt(p.prompt)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 rounded-lg text-xs font-medium transition-colors text-left shadow-xs flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium transition-colors text-left shadow-xs flex items-center gap-1.5"
                 >
-                  <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{p.label}</span>
                 </button>
               ))}

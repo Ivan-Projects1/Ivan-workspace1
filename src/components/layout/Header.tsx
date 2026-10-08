@@ -12,6 +12,7 @@ import {
   Settings,
   FileText,
   CheckSquare,
+  Download,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -26,6 +27,8 @@ export const Header: React.FC = () => {
     setCurrentView,
     createChat,
     addToast,
+    isInstallable,
+    promptInstallPWA,
   } = useWorkspace();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,17 +61,14 @@ export const Header: React.FC = () => {
     }
   };
 
-  const toggleNextTheme = () => {
-    if (theme === 'system') {
-      setTheme('light');
-      addToast('Visual theme set to Light', 'info');
-    } else if (theme === 'light') {
-      setTheme('dark');
-      addToast('Visual theme set to Dark', 'info');
-    } else {
-      setTheme('system');
-      addToast('Visual theme set to System default', 'info');
-    }
+  const isCurrentlyDark =
+    theme === 'dark' ||
+    (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const toggleTheme = () => {
+    const nextTheme = isCurrentlyDark ? 'light' : 'dark';
+    setTheme(nextTheme);
+    addToast(`Visual theme set to ${nextTheme === 'dark' ? 'Dark' : 'Light'}`, 'info');
   };
 
   return (
@@ -170,18 +170,32 @@ export const Header: React.FC = () => {
           <span>Ivan AI</span>
         </button>
 
+        {/* PWA Install button */}
+        {isInstallable && (
+          <button
+            onClick={promptInstallPWA}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-semibold border border-emerald-300 dark:border-emerald-700/60 transition-colors shadow-xs"
+            title="Install Ivan Workspace as a Progressive Web App"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Install</span>
+          </button>
+        )}
+
         <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block" />
 
         {/* Theme Toggle */}
         <button
-          onClick={toggleNextTheme}
+          onClick={toggleTheme}
           className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-          title={`Current theme: ${theme}. Click to switch.`}
-          aria-label="Toggle theme"
+          title={isCurrentlyDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label={isCurrentlyDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          {theme === 'light' && <Sun className="w-4 h-4 text-slate-600" />}
-          {theme === 'dark' && <Moon className="w-4 h-4 text-slate-300" />}
-          {theme === 'system' && <Laptop className="w-4 h-4 text-slate-400" />}
+          {isCurrentlyDark ? (
+            <Sun className="w-4 h-4 text-amber-400 hover:text-amber-300 transition-colors" />
+          ) : (
+            <Moon className="w-4 h-4 text-slate-600 hover:text-slate-900 transition-colors" />
+          )}
         </button>
 
         {/* Settings button */}

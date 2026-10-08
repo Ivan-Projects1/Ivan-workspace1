@@ -134,6 +134,7 @@ export interface AISettings {
   enabled: boolean;
   provider: 'openai' | 'gemini' | 'auto';
   openAIApiKey?: string;
+  geminiApiKey?: string;
   model: string;
   temperature: number;
   maxTokens: number;

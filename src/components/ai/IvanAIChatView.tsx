@@ -317,7 +317,18 @@ export const IvanAIChatView: React.FC = () => {
 
         {/* Chats List */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
-          {filteredChats.map((chat) => {
+          {filteredChats.length === 0 ? (
+            <div className="py-8 px-3 text-center space-y-2">
+              <Sparkles className="w-5 h-5 text-slate-300 dark:text-slate-600 mx-auto" />
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                {chatSearchQuery ? 'No matching chats' : 'No conversations yet'}
+              </p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
+                {chatSearchQuery ? 'Try a different search term' : 'Click New Conversation above to start'}
+              </p>
+            </div>
+          ) : (
+            filteredChats.map((chat) => {
             const isActive = chat.id === activeChatId;
             return (
               <div
@@ -377,7 +388,7 @@ export const IvanAIChatView: React.FC = () => {
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       </div>
 
@@ -462,15 +473,15 @@ export const IvanAIChatView: React.FC = () => {
           {!activeChat || activeChat.messages.length === 0 ? (
             /* Empty State / Welcome Screen with Quick Prompts */
             <div className="max-w-2xl mx-auto py-8 space-y-6 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-900/20">
-                <Sparkles className="w-8 h-8" />
+              <div className="w-14 h-14 rounded-xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-sm">
+                <Sparkles className="w-7 h-7" />
               </div>
               <div className="space-y-2">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   How can Ivan AI assist your workspace today?
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                  Powered by ChatGPT & OpenAI server proxy, connected directly to your locally stored university notes, research, teaching schemes, and projects.
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                  Powered by Google Gemini & OpenAI intelligence, connected directly to your locally stored university notes, research, teaching schemes, and projects.
                 </p>
               </div>
 
@@ -589,7 +600,7 @@ export const IvanAIChatView: React.FC = () => {
                     </div>
 
                     {isUser && (
-                      <div className="w-8 h-8 rounded-xl bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 mt-1 font-bold text-xs shadow-sm">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-1 font-bold text-xs shadow-xs">
                         IW
                       </div>
                     )}

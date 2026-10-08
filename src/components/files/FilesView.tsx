@@ -238,8 +238,8 @@ export const FilesView: React.FC<{ forcedCategory?: WorkspaceCategory; forcedFol
 
       {/* Multi-Selection Action Toolbar */}
       {selectedFileIds.length > 0 && (
-        <div className="p-3 bg-slate-900 text-white rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-sm animate-in fade-in">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
+        <div className="p-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-xs animate-in fade-in">
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span>{selectedFileIds.length} document(s) selected</span>
           </div>

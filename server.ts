@@ -16,8 +16,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Helper to get Google GenAI client
-function getGenAIClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
+function getGenAIClient(customKey?: string) {
+  const apiKey = customKey || process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
   return new GoogleGenAI({
     apiKey,
@@ -27,6 +27,28 @@ function getGenAIClient() {
       },
     },
   });
+}
+
+async function withRetry<T>(fn: () => Promise<T>, maxRetries = 2, delayMs = 1200): Promise<T> {
+  let lastError: any;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: any) {
+      lastError = err;
+      const is503 =
+        err?.message?.includes('503') ||
+        err?.status === 503 ||
+        String(err).includes('UNAVAILABLE') ||
+        String(err).includes('high demand');
+      if (is503 && attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
 }
 
 // System prompts for different Ivan AI modes
@@ -85,7 +107,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     appName: 'IVAN WORKSPACE',
     hasOpenAI,
     hasGemini,
-    defaultProvider: hasOpenAI ? 'openai' : hasGemini ? 'gemini' : 'openai',
+    defaultProvider: hasGemini ? 'gemini' : hasOpenAI ? 'openai' : 'gemini',
     availableOpenAIModels: [
       { id: 'gpt-4o', name: 'GPT-4o (Omni Flagship)', provider: 'openai' },
       { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Fast & Smart)', provider: 'openai' },
@@ -93,8 +115,8 @@ app.get('/api/health', (req: Request, res: Response) => {
       { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'openai' },
     ],
     availableGeminiModels: [
-      { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (High Speed)', provider: 'gemini' },
-      { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Deep Reasoning)', provider: 'gemini' },
+      { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash (Latest, Fast & Built-in - Recommended)', provider: 'gemini' },
+      { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Deep STEM Reasoning)', provider: 'gemini' },
     ],
   });
 });
@@ -111,21 +133,23 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       temperature = 0.7,
       stream = true,
       userApiKey = '',
+      userGeminiApiKey = '',
     } = req.body;
 
     const authHeader = req.headers['x-openai-api-key'] as string;
+    const geminiAuthHeader = req.headers['x-gemini-api-key'] as string;
     const openAIApiKey = userApiKey || authHeader || process.env.OPENAI_API_KEY;
-    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const geminiApiKey = userGeminiApiKey || geminiAuthHeader || process.env.GEMINI_API_KEY;
 
     // Determine target provider
     let targetProvider = provider;
     if (targetProvider === 'auto') {
-      if (openAIApiKey) {
-        targetProvider = 'openai';
-      } else if (geminiApiKey) {
+      if (geminiApiKey) {
         targetProvider = 'gemini';
+      } else if (openAIApiKey) {
+        targetProvider = 'openai';
       } else {
-        targetProvider = 'openai'; // Will prompt for key
+        targetProvider = 'gemini';
       }
     }
 
@@ -279,14 +303,17 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     // 2. GEMINI PROVIDER
     if (targetProvider === 'gemini') {
-      const ai = getGenAIClient();
+      const ai = getGenAIClient(geminiApiKey);
       if (!ai) {
         return res.status(400).json({
-          error: 'Gemini API key is not configured. Please check GEMINI_API_KEY environment variable.',
+          error: 'Gemini API key is not configured. Please check GEMINI_API_KEY environment variable or enter your Google Gemini API key in Settings.',
         });
       }
 
-      const chosenModel = model.startsWith('gemini') ? model : 'gemini-3.8-flash';
+      const chosenModel =
+        model === 'gemini-3.1-pro-preview'
+          ? 'gemini-3.1-pro-preview'
+          : 'gemini-3.8-flash';
 
       // Build simplified prompt content for guaranteed compatibility
       let conversationTranscript = '';
@@ -302,20 +329,20 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         res.write(`data: ${JSON.stringify({ sources: sourcesUsed })}\n\n`);
 
         try {
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('AI request timeout (15s)')), 15000)
-          );
-
-          const streamPromise = ai.models.generateContentStream({
-            model: chosenModel,
-            contents: conversationTranscript || 'Hello Ivan AI',
-            config: {
-              systemInstruction: systemPrompt,
-              temperature: Number(temperature) || 0.7,
-            },
+          const responseStream: any = await withRetry(async () => {
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('AI request timeout (35s)')), 35000)
+            );
+            const streamPromise = ai.models.generateContentStream({
+              model: chosenModel,
+              contents: conversationTranscript || 'Hello Ivan AI',
+              config: {
+                systemInstruction: systemPrompt,
+                temperature: Number(temperature) || 0.7,
+              },
+            });
+            return await Promise.race([streamPromise, timeoutPromise]);
           });
-
-          const responseStream: any = await Promise.race([streamPromise, timeoutPromise]);
 
           for await (const chunk of responseStream) {
             const chunkText = chunk.text;
@@ -326,27 +353,62 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
           res.write('data: [DONE]\n\n');
           return res.end();
-        } catch (err: any) {
-          console.error('Gemini stream error:', err);
-          res.write(`data: ${JSON.stringify({ error: err.message || 'Error communicating with Gemini' })}\n\n`);
-          res.write('data: [DONE]\n\n');
-          return res.end();
+        } catch (streamErr: any) {
+          console.warn('Gemini stream interrupted, falling back to generateContent:', streamErr.message);
+          try {
+            const fallbackResponse: any = await withRetry(async () => {
+              return await ai.models.generateContent({
+                model: chosenModel,
+                contents: conversationTranscript || 'Hello Ivan AI',
+                config: {
+                  systemInstruction: systemPrompt,
+                  temperature: Number(temperature) || 0.7,
+                },
+              });
+            });
+            const text = fallbackResponse.text || '';
+            const words = text.split(' ');
+            for (let i = 0; i < words.length; i += 4) {
+              const slice = words.slice(i, i + 4).join(' ') + ' ';
+              res.write(`data: ${JSON.stringify({ text: slice })}\n\n`);
+              await new Promise((r) => setTimeout(r, 20));
+            }
+            res.write('data: [DONE]\n\n');
+            return res.end();
+          } catch (err: any) {
+            console.error('Gemini fallback failed:', err);
+            let displayError = err.message || 'Error communicating with Gemini';
+            try {
+              const parsed = JSON.parse(displayError);
+              if (parsed?.error?.message) {
+                try {
+                  const inner = JSON.parse(parsed.error.message);
+                  if (inner?.error?.message) displayError = inner.error.message;
+                } catch {
+                  displayError = parsed.error.message;
+                }
+              }
+            } catch {}
+            res.write(`data: ${JSON.stringify({ error: displayError })}\n\n`);
+            res.write('data: [DONE]\n\n');
+            return res.end();
+          }
         }
       } else {
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('AI request timeout (15s)')), 15000)
-        );
-
-        const genPromise = ai.models.generateContent({
-          model: chosenModel,
-          contents: conversationTranscript || 'Hello Ivan AI',
-          config: {
-            systemInstruction: systemPrompt,
-            temperature: Number(temperature) || 0.7,
-          },
+        const response: any = await withRetry(async () => {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('AI request timeout (35s)')), 35000)
+          );
+          const genPromise = ai.models.generateContent({
+            model: chosenModel,
+            contents: conversationTranscript || 'Hello Ivan AI',
+            config: {
+              systemInstruction: systemPrompt,
+              temperature: Number(temperature) || 0.7,
+            },
+          });
+          return await Promise.race([genPromise, timeoutPromise]);
         });
-
-        const response: any = await Promise.race([genPromise, timeoutPromise]);
 
         return res.json({
           text: response.text || '',
@@ -435,7 +497,7 @@ app.post('/api/ai/analyze-document', async (req: Request, res: Response) => {
       }
       return res.json({ result: data.choices?.[0]?.message?.content, provider: 'openai' });
     } else if (geminiApiKey) {
-      const ai = getGenAIClient();
+      const ai = getGenAIClient(geminiApiKey);
       if (!ai) throw new Error('Gemini client not initialized');
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
@@ -513,7 +575,7 @@ ${JSON.stringify(docCatalog, null, 2)}`;
       const data = await response.json();
       answerJsonStr = data.choices?.[0]?.message?.content || '{}';
     } else if (geminiApiKey) {
-      const ai = getGenAIClient();
+      const ai = getGenAIClient(geminiApiKey);
       if (!ai) throw new Error('Gemini not ready');
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',

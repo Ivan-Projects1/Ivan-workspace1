@@ -102,6 +102,11 @@ interface WorkspaceContextType {
   renameChat: (id: string, title: string) => Promise<void>;
   triggerAIPromptFromAnywhere: (prompt: string, mode?: AIMode, attachedFiles?: WorkspaceFile[]) => void;
 
+  // Workspace data management & PWA
+  clearAllWorkspaceData: () => Promise<void>;
+  isInstallable: boolean;
+  promptInstallPWA: () => Promise<void>;
+
   refreshAllData: () => Promise<void>;
 }
 
@@ -132,13 +137,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [settings, setSettings] = useState<AISettings>({
     enabled: true,
     provider: 'auto',
-    model: 'gpt-4o',
+    model: 'gemini-2.5-flash',
     temperature: 0.7,
     maxTokens: 4096,
     streamResponse: true,
   });
 
-  // Apply theme class
+  // Apply theme class and data attributes
   useEffect(() => {
     localStorage.setItem('ivan_theme', theme);
     const root = document.documentElement;
@@ -149,10 +154,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (isDark) {
         root.classList.add('dark');
         document.body.classList.add('dark');
+        root.setAttribute('data-theme', 'dark');
         root.style.colorScheme = 'dark';
       } else {
         root.classList.remove('dark');
         document.body.classList.remove('dark');
+        root.setAttribute('data-theme', 'light');
         root.style.colorScheme = 'light';
       }
     };
@@ -166,6 +173,28 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return () => mediaQuery.removeEventListener('change', listener);
     }
   }, [theme]);
+
+  // PWA Install prompt handling
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', () => {
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
+  }, []);
 
   const addToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -621,6 +650,35 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setThemeState(t);
   };
 
+  const clearAllWorkspaceData = async () => {
+    await db.purgeAllData();
+    setFiles([]);
+    setFolders([]);
+    setProjects([]);
+    setTasks([]);
+    setNotes([]);
+    setCalendarEvents([]);
+    setAiChats([]);
+    setSelectedFileIds([]);
+    setActivePreviewFile(null);
+    setActiveChatId(null);
+    await refreshAllData();
+    addToast('All workspace data and seed files cleared cleanly.', 'info');
+  };
+
+  const promptInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        setIsInstallable(false);
+        setDeferredPrompt(null);
+      }
+    } else {
+      addToast('To install: click the Install icon in your browser address bar or menu.', 'info');
+    }
+  };
+
   return (
     <WorkspaceContext.Provider
       value={{
@@ -689,6 +747,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         deleteChat,
         renameChat,
         triggerAIPromptFromAnywhere,
+        clearAllWorkspaceData,
+        isInstallable,
+        promptInstallPWA,
         refreshAllData,
       }}
     >

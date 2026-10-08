@@ -107,7 +107,7 @@ export const AIFloatingWidget: React.FC = () => {
         <button
           type="submit"
           disabled={loading || !prompt.trim()}
-          className="p-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl transition-all"
+          className="p-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-40 text-white rounded-lg shadow-xs transition-colors"
         >
           <Send className="w-3.5 h-3.5" />
         </button>
